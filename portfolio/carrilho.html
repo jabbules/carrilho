@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <style>
+        body {
+            background-color: #caf0f8;
+            font-family: 'Diatype Variable', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Altura da página */
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #logo-left, #logo-right {
+            font-size: 15px;
+        }
+
+        #clock {
+            font-size: 13px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #phrases {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        #portfolio {
+            text-align: center;
+            font-size: 60px;
+            margin-top: 10px;
+        }
+
+        /* Divisões horizontais */
+        .section {
+            display: flex;
+            flex: 1;
+            position: relative;
+        }
+
+        .section img {
+            max-height: 300px;
+            margin: 10px;
+            cursor: move; /* Adiciona cursor ao passar sobre as imagens */
+            position: absolute;
+        }
+
+        /* Estilo para cada seção */
+        .section1 {
+            justify-content: flex-start;
+        }
+
+        .section2 {
+            justify-content: center;
+        }
+
+        .section3 {
+            justify-content: flex-end;
+        }
+
+        /* Estilo para a palavra LINKS */
+        #links {
+            text-align: center;
+            font-size: 40px;
+            cursor: pointer;
+            margin-top: 20px;
+            text-decoration: underline;
+        }
+
+        /* Estilo para o rodapé */
+        #footer {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 20px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div id="logo-left">LEANDRO</div>
+        <div id="logo-right">CARRILHO</div>
+    </header>
+
+    <div id="clock"></div>
+
+    <div id="phrases">
+        <p>DESIGNED VISIONS, DESIGNING VISIONS</p>
+        <p>WHERE IMAGINATION MEETS INNOVATION</p>
+    </div>
+
+    <div id="portfolio">PORTFOLIO</div>
+
+    <!-- Divisões horizontais -->
+    <div class="section section1" id="section1"></div>
+    <div class="section section3" id="section3"></div>
+    <div class="section section2" id="section2"></div>
+
+    <!-- Palavra LINKS com link -->
+    <div id="links" onclick="window.open('https://www.linktr.ee/carrilhc', '_blank')">LINKS</div>
+
+    <!-- Rodapé -->
+    <div id="footer">Leandro Carrilho All Rights Reserved 2023</div>
+
+    <script>
+        // Adicione o código JavaScript para atualizar o relógio
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours();
+            minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            document.getElementById('clock').innerHTML = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Atualize o relógio a cada segundo
+        setInterval(updateClock, 1000);
+
+        // Chame a função para configurar o relógio inicialmente
+        updateClock();
+
+        // Função para verificar se há sobreposição
+        function isOverlap(newPos, existingPositions) {
+            for (const pos of existingPositions) {
+                if (
+                    newPos.left < pos.left + pos.width &&
+                    newPos.left + newPos.width > pos.left &&
+                    newPos.top < pos.top + pos.height &&
+                    newPos.top + newPos.height > pos.top
+                ) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Função para calcular posições aleatórias sem sobreposição
+        function getRandomPosition(existingPositions, maxWidth, maxHeight) {
+            const width = 100; // Largura da imagem
+            const height = 100; // Altura da imagem
+            let newPos;
+
+            do {
+                newPos = {
+                    left: Math.floor(Math.random() * (maxWidth - width)),
+                    top: Math.floor(Math.random() * (maxHeight - height)),
+                    width: width,
+                    height: height,
+                };
+            } while (isOverlap(newPos, existingPositions));
+
+            existingPositions.push(newPos);
+            return newPos;
+        }
+
+        // Adiciona imagens com posições aleatórias nas seções
+        const section1 = document.getElementById('section1');
+        const section2 = document.getElementById('section2');
+        const section3 = document.getElementById('section3');
+        const existingPositions = [];
+
+        // Nomes das imagens
+        const imageName1 = '1.jpg';
+        const imageName2 = '2.jpg';
+        const imageName3 = '3.png';
+        const imageName4 = '4.jpg';
+        const imageName5 = '5.png';
+       
+
+        const addImageToSection = (imageName, section) => {
+            const imgElement = document.createElement('img');
+            imgElement.src = `imagens/${imageName}`;
+            imgElement.alt = `Descrição da Imagem ${imageName}`;
+
+            // Define posições aleatórias sem sobreposição
+            const newPos = getRandomPosition(existingPositions, section.clientWidth, section.clientHeight);
+
+            imgElement.style.left = `${newPos.left}px`;
+            imgElement.style.top = `${newPos.top}px`;
+
+            // Adiciona imagem à seção correspondente
+            section.appendChild(imgElement);
+
+            // Habilita o recurso de arrastar com jQuery UI
+            $(imgElement).draggable({
+                containment: 'body',
+                scroll: false,
+                start: function(event, ui) {
+                    $(this).css('z-index', 1000);
+                },
+                stop: function(event, ui) {
+                    $(this).css('z-index', 1);
+                }
+            });
+        };
+
+        // Adiciona imagens às seções
+        addImageToSection(imageName1, section1);
+        addImageToSection(imageName2, section2);
+        addImageToSection(imageName3, section3);
+        addImageToSection(imageName4, section1);
+        addImageToSection(imageName5, section2);
+        addImageToSection(imageName6, section3);
+        addImageToSection(imageName7, section1);
+    </script>
+</body>
+</html>
